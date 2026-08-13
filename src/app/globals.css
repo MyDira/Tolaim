@@ -1,0 +1,426 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   Tolaim — design tokens
+   ===========================================================================
+   Concept: the light table.
+
+   Bedikas tolaim is done over a lit panel — produce laid on white, light
+   coming from beneath, a mesh strainer and a basin to hand. The site borrows
+   that room. Pages are white panels floating on a pale, faintly green-cool
+   ground. Content sits on the panel the way a specimen sits on the glass.
+
+   Saturated colour is spent almost entirely on the risk scale, so the badges
+   carry maximum signal and everything around them stays quiet. The single
+   brand accent is deliberately blue-teal — an inspection-lamp colour — so it
+   never competes with the green end of the scale.
+   =========================================================================== */
+
+/*
+ * `static` matters here. Tailwind drops theme variables it cannot see
+ * referenced in source, and the risk tokens are addressed dynamically —
+ * `var(--color-risk-${level}-fg)` — so a plain @theme block silently emits
+ * only the levels that happen to appear as literals somewhere, and the rest
+ * fall back to inherited ink.
+ */
+@theme static {
+  /* --- ground and ink ---------------------------------------------------- */
+  --color-paper: #f6f8f4;
+  --color-panel: #ffffff;
+  --color-ink: #16201c;
+  --color-muted: #5e6b63;
+  --color-edge: #dee4da;
+  --color-accent: #16506b;
+  --color-accent-soft: #e8f0f3;
+
+  /* --- the risk scale ----------------------------------------------------
+     Each level ships three values:
+       mark  full saturation, used for the gauge and nothing else
+       bg    tint, for badge and panel backgrounds
+       fg    dark, for text on that tint
+     White on every `mark` clears 5.2:1; every `fg` on its `bg` clears 9:1. */
+
+  --color-risk-1-mark: #8e1f2f;
+  --color-risk-1-bg: #f7e9ea;
+  --color-risk-1-fg: #6e1624;
+
+  --color-risk-2-mark: #b4451f;
+  --color-risk-2-bg: #fbede5;
+  --color-risk-2-fg: #8a3316;
+
+  --color-risk-3-mark: #8f5a00;
+  --color-risk-3-bg: #faf1df;
+  --color-risk-3-fg: #6f4600;
+
+  --color-risk-4-mark: #2f6e7e;
+  --color-risk-4-bg: #e6f1f3;
+  --color-risk-4-fg: #23545f;
+
+  --color-risk-5-mark: #2f7a4f;
+  --color-risk-5-bg: #e7f2eb;
+  --color-risk-5-fg: #235c3c;
+
+  /* --- severity (alerts) -------------------------------------------------
+     Borrowed from the scale rather than inventing a second palette. */
+  --color-sev-urgent: #8e1f2f;
+  --color-sev-advisory: #8f5a00;
+  --color-sev-info: #16506b;
+
+  /* --- type --------------------------------------------------------------
+     Newsreader   a screen-optical text serif. Reads as a reference work.
+     IBM Plex Sans instrument-panel neutrality; holds up small, on a phone.
+     IBM Plex Mono citations and gauge numerals, set like specimen labels. */
+  --font-display: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SF Mono", monospace;
+
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+
+  /* Panels are lifted by light, not by drop shadow. */
+  --shadow-panel: 0 1px 2px rgb(22 32 28 / 0.04), 0 8px 24px -12px rgb(22 32 28 / 0.14);
+  --shadow-lift: 0 2px 4px rgb(22 32 28 / 0.06), 0 18px 40px -20px rgb(22 32 28 / 0.22);
+}
+
+/* ===========================================================================
+   Base
+   =========================================================================== */
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.6;
+    font-feature-settings: "kern", "liga";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.012em;
+    line-height: 1.15;
+    text-wrap: balance;
+  }
+
+  /* One focus treatment everywhere. Always visible, never removed. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+  }
+
+  a {
+    color: inherit;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* ===========================================================================
+   Components
+   =========================================================================== */
+
+@layer components {
+  /* --- panels ------------------------------------------------------------ */
+
+  .panel {
+    background: var(--color-panel);
+    border: 1px solid var(--color-edge);
+    border-radius: var(--radius-lg);
+  }
+
+  .panel-lift {
+    box-shadow: var(--shadow-panel);
+  }
+
+  /* --- the mesh -----------------------------------------------------------
+     A strainer seen close up. Used only as a section boundary and behind the
+     home hero — never as decoration on a content surface. */
+
+  .mesh {
+    background-image:
+      repeating-linear-gradient(45deg, var(--color-edge) 0 1px, transparent 1px 7px),
+      repeating-linear-gradient(-45deg, var(--color-edge) 0 1px, transparent 1px 7px);
+    opacity: 0.55;
+  }
+
+  .mesh-rule {
+    height: 7px;
+    background-image:
+      repeating-linear-gradient(45deg, var(--color-edge) 0 1px, transparent 1px 6px),
+      repeating-linear-gradient(-45deg, var(--color-edge) 0 1px, transparent 1px 6px);
+  }
+
+  /* --- the gauge ----------------------------------------------------------
+     The signature element. Five slots; the level's slot and everything easier
+     than it are filled. Legible with no colour at all, which matters because
+     these pages get printed and photocopied for kitchen walls.
+
+     Level 1 does not fill a slot. It is drawn as a struck block, because
+     "cannot be cleaned" is not the bottom rung of an effort ladder — it is a
+     different kind of statement, and the gauge should not imply otherwise. */
+
+  .gauge {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 2px;
+    height: 0.85em;
+    flex-shrink: 0;
+  }
+
+  .gauge-slot {
+    width: 0.42em;
+    border: 1px solid currentColor;
+    border-radius: 1px;
+    opacity: 0.3;
+  }
+
+  .gauge-slot[data-filled="true"] {
+    background: currentColor;
+    opacity: 1;
+  }
+
+  /* The line between "inspection required" and "no inspection required" sits
+     between slots 3 and 4 and is drawn on the gauge itself. */
+  .gauge-slot[data-line="true"] {
+    margin-left: 4px;
+    box-shadow: -3px 0 0 -1px currentColor;
+  }
+
+  .gauge-blocked {
+    width: 100%;
+    border: 1px solid currentColor;
+    border-radius: 1px;
+    background-image: repeating-linear-gradient(
+      -45deg,
+      currentColor 0 1px,
+      transparent 1px 4px
+    );
+  }
+
+  /* --- rich text ----------------------------------------------------------
+     A small hand-rolled prose style. The typography plugin would bring a lot
+     of rules for the four elements this site actually uses. */
+
+  .rich {
+    max-width: 68ch;
+  }
+
+  .rich > * + * {
+    margin-top: 1.1em;
+  }
+
+  .rich p {
+    line-height: 1.65;
+  }
+
+  .rich strong {
+    font-weight: 600;
+  }
+
+  .rich h3 {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+    margin-top: 1.9em;
+  }
+
+  .rich ul,
+  .rich ol {
+    padding-left: 1.25em;
+  }
+
+  .rich ul {
+    list-style: none;
+    padding-left: 0;
+  }
+
+  .rich ul > li {
+    position: relative;
+    padding-left: 1.3em;
+    margin-top: 0.5em;
+  }
+
+  .rich ul > li::before {
+    content: "";
+    position: absolute;
+    left: 0.15em;
+    top: 0.65em;
+    width: 6px;
+    height: 6px;
+    border: 1px solid var(--color-muted);
+    border-radius: 1px;
+    transform: rotate(45deg);
+  }
+
+  .rich ol {
+    list-style: decimal;
+  }
+
+  .rich ol > li {
+    margin-top: 0.5em;
+    padding-left: 0.25em;
+  }
+
+  .rich a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  /* --- small caps label -------------------------------------------------- */
+
+  .label {
+    font-family: var(--font-sans);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-muted);
+  }
+
+  .citation {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-muted);
+  }
+
+  /* --- links ------------------------------------------------------------- */
+
+  .link {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: color-mix(in srgb, var(--color-accent) 35%, transparent);
+    transition: text-decoration-color 120ms ease;
+  }
+
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* --- skip link --------------------------------------------------------- */
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    z-index: 100;
+  }
+
+  .skip-link:focus {
+    left: 0.5rem;
+    top: 0.5rem;
+    padding: 0.5rem 0.875rem;
+    background: var(--color-panel);
+    border: 1px solid var(--color-accent);
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ===========================================================================
+   Print
+   ===========================================================================
+   People print the cleaning method pages and pin them up in kitchens, and they
+   photocopy the risk badges onto synagogue bulletin boards. Flatten to ink on
+   white, keep the gauge, drop everything that is navigation.
+   =========================================================================== */
+
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+    font-size: 11pt;
+  }
+
+  [data-print="hide"],
+  nav,
+  footer {
+    display: none !important;
+  }
+
+  .panel,
+  .panel-lift {
+    border: 1px solid #999 !important;
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Badges become ink outlines; the gauge is what carries the level. */
+  [data-risk-badge] {
+    background: #fff !important;
+    color: #000 !important;
+    border: 1px solid #000 !important;
+  }
+
+  .mesh,
+  .mesh-rule {
+    display: none !important;
+  }
+
+  h1,
+  h2,
+  h3 {
+    break-after: avoid;
+  }
+
+  li,
+  figure,
+  img {
+    break-inside: avoid;
+  }
+
+  /* Show link targets, so a printed page stays usable off the screen. */
+  a[data-print-url]::after {
+    content: " (" attr(data-print-url) ")";
+    font-family: var(--font-mono);
+    font-size: 9pt;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
