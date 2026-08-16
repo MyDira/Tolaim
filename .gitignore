@@ -11,3 +11,6 @@ npm-debug.log*
 .vercel
 next-env.d.ts
 *.tsbuildinfo
+
+# Generated per-import from your own data file; not source.
+supabase/import.sql

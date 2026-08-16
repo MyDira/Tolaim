@@ -27,6 +27,7 @@ real Supabase project — see below.
 | `npm run build`     | Production build                                           |
 | `npm run typecheck` | `tsc --noEmit`                                             |
 | `npm run seed:gen`  | Regenerates `supabase/seed.sql` from the sample dataset    |
+| `npm run import`    | Turns a CSV of real data into `supabase/import.sql`       |
 
 ---
 
@@ -87,7 +88,40 @@ delete from alerts; delete from rulings; delete from rabbis;
 delete from authorities; delete from produce_items;
 ```
 
-### 5. Create the first admin
+### 5. Import real data
+
+`supabase/seed.sql` is invented sample content. To load real data instead, put
+it in a CSV and run:
+
+```bash
+npm run import -- data/produce.csv
+npx supabase db execute --file supabase/import.sql
+```
+
+`data/produce.example.csv` is a filled-in template. One row per **position** —
+that is, per (produce item × authority) — with the produce-level columns
+repeated on each of that item's rows. Only three columns are required:
+`produce`, `authority`, `risk_level`. `risk_level` accepts either `1`–`5` or the
+exact label (`Expert checking`). The full column list is documented at the top
+of `scripts/import-produce.mjs`.
+
+Two things the importer does on purpose:
+
+- **Everything arrives as a draft.** A bulk import is exactly the case where the
+  review step matters, so nothing is public until it is approved in `/admin`.
+- **Re-running is safe.** Rows match on slug and update in place, and approval
+  state on existing rows is left alone, so a second import never silently
+  unpublishes something that has already been reviewed.
+
+It refuses to write a partial file: bad rows are reported with their line
+numbers and nothing is emitted until they are fixed.
+
+Images are not uploaded by the importer. Put the files in the `produce-images`
+bucket and reference the object path in the `image` column; the run prints every
+path it referenced so you can check them. Any item without one falls back to its
+category glyph.
+
+### 6. Create the first admin
 
 There is no signup anywhere on this site. Accounts are made by hand.
 
@@ -103,7 +137,7 @@ values ('<user-uuid>', 'you@example.com', 'Your Name', 'admin');
 Being an auth user is not enough — the row in `admin_users` is what grants
 access. Then go to `/admin` and sign in.
 
-### 6. Turn off public signup
+### 7. Turn off public signup
 
 **Authentication → Providers → Email**: disable *Enable sign ups*. Belt and
 braces, since nothing in the app offers it.
