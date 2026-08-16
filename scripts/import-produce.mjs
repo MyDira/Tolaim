@@ -293,6 +293,20 @@ rows.slice(1).forEach((cells, index) => {
   });
 });
 
+// When positions are drawn from another organisation's published guidance, the
+// attribution and the link back are the whole basis on which they are being
+// reported. A row without either is reported so it is a decision, not an
+// oversight. Warning by default — some positions genuinely have no public URL —
+// and an error under --strict-sources.
+const strictSources = process.argv.includes("--strict-sources");
+const unsourced = positions.filter((p) => !p.citation && !p.sourceUrl);
+
+if (unsourced.length > 0 && strictSources) {
+  for (const p of unsourced) {
+    problems.push(`line ${p.line}: no citation and no source_url — required under --strict-sources`);
+  }
+}
+
 if (problems.length > 0) {
   console.error(`\n${problems.length} problem${problems.length > 1 ? "s" : ""} in ${basename(inputPath)}:\n`);
   for (const problem of problems) console.error(`  ${problem}`);
@@ -408,6 +422,16 @@ console.log(
   `  ${produce.size} produce items, ${positions.length} positions, ` +
     `${authorities.size} authorities, ${categories.size} categories — all as drafts.`,
 );
+
+if (unsourced.length > 0) {
+  console.log(
+    `\n  ${unsourced.length} position${unsourced.length > 1 ? "s have" : " has"} no citation and no source_url.`,
+  );
+  console.log("  Each item page will show the position with nothing to attribute it to:");
+  for (const p of unsourced.slice(0, 10)) console.log(`    line ${p.line}`);
+  if (unsourced.length > 10) console.log(`    …and ${unsourced.length - 10} more`);
+  console.log("  Re-run with --strict-sources to treat this as an error.");
+}
 
 if (images.size > 0) {
   console.log(`\n  ${images.size} image path${images.size > 1 ? "s" : ""} referenced. Confirm each exists in the`);

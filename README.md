@@ -116,6 +116,19 @@ Two things the importer does on purpose:
 It refuses to write a partial file: bad rows are reported with their line
 numbers and nothing is emitted until they are fixed.
 
+**Attribution.** When positions come from another organisation's published
+guidance, the citation and the link back are the basis on which they are being
+reported at all — so fill in `citation` and `source_url` on every row. The
+importer lists any position that has neither, and `--strict-sources` turns that
+into an error:
+
+```bash
+npm run import -- data/produce.csv --strict-sources
+```
+
+Item pages render the citation under each position and the `source_url` as a
+"Source" link, and both survive into the printed page.
+
 Images are not uploaded by the importer. Put the files in the `produce-images`
 bucket and reference the object path in the `image` column; the run prints every
 path it referenced so you can check them. Any item without one falls back to its
